@@ -22,7 +22,7 @@ First clone this repo:
 
 [source,shell]
 ----
- git clone https://github.com/cgahlon/cgahlon-demo.git
+ git clone https://github.com/cgahlon/eks-capsule-demo.git
 ----
 
 Create a small test cluster using this command.
