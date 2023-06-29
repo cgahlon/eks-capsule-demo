@@ -1,0 +1,59 @@
+# This document came from: https://capsule.clastix.io/docs/guides/managed-kubernetes/aws-eks
+Parameters:
+  ClusterName:
+    Type: String
+Resources:
+  UserAlice:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Sub "alice-${ClusterName}"
+      Policies:
+      - PolicyName: !Sub "alice-${ClusterName}-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Sid: AllowAssumeOrganizationAccountRole
+            Effect: Allow
+            Action: sts:AssumeRole
+            Resource: !GetAtt RoleAlice.Arn
+          - Sid: AllowEksAccessToTestCluster
+            Effect: Allow
+            Action:
+              - "eks:*"
+            Resource:
+              - !Sub "arn:aws:eks:us-east-1:${AWS::AccountId}:cluster/${ClusterName}"
+  AccessKeyAlice:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref UserAlice
+  RoleAlice:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: !Sub "IAM role for the alice-${ClusterName} user"
+      RoleName: !Sub "alice-${ClusterName}"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action: sts:AssumeRole
+Outputs:
+  RoleAliceArn:
+    Description: The ARN of the Alice IAM Role
+    Value: !GetAtt RoleAlice.Arn
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-RoleAliceArn"
+  AccessKeyAlice:
+    Description: The AccessKey for Alice user
+    Value: !Ref AccessKeyAlice
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-AccessKeyAlice"
+  SecretAccessKeyAlice:
+    Description: The SecretAccessKey for Alice user
+    Value: !GetAtt AccessKeyAlice.SecretAccessKey
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-SecretAccessKeyAlice"

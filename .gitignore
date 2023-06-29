@@ -1,0 +1,9 @@
+.idea
+*.tmp
+*.swp
+*.key
+*.csr
+*.crt
+*/tmp
+
+kubeconfig.conf
