@@ -4,7 +4,7 @@ This is a demo of Capsule multi-tenancy management running on an AWS EKS cluster
 
 == What is Capsule you ask?
 
-The https://capsule.clastix.io/docs/[Capsule Doucumentation Overview] section puts it quite succinctly:
+The https://capsule.clastix.io/docs/[Capsule Documentation Overview] section puts it quite succinctly:
 
 ====
 "Capsule implements a multi-tenant and policy-based environment in your Kubernetes cluster.
@@ -130,7 +130,7 @@ AWS_PROFILE=alice kubectl auth can-i create ingresses --kubeconfig="kubeconfig.c
 
 === Testing With a Simple Example
 
-Then create a namespace as 'alice' and deploy our simple app to 'production'
+Then create a namespace as 'alice' and deploy our simple app in it
 
 [source,shell]
 ----
@@ -138,7 +138,7 @@ AWS_PROFILE=alice kubectl create ns oil-production --kubeconfig="kubeconfig.conf
 AWS_PROFILE=alice kubectl apply -n oil-production -f manifests/demo-apps/app-oil-production.yaml --kubeconfig="kubeconfig.conf"
 ----
 
-Later that week Alice tries to create another ingress in the `oil-development` namespace.
+Later that week Alice tries to create another ingress in the "oil-development" namespace.
 However, she copy/pasted the manifest from production and forgot to change the ingress host entry.
 Capsule will block the creation of an ingress with a duplicate host value based on the scope defined in the tenant config.
 
@@ -148,16 +148,16 @@ AWS_PROFILE=alice kubectl create namespace oil-development --kubeconfig="kubecon
 AWS_PROFILE=alice kubectl -n oil-development apply -f manifests/demo-apps/app-oil-development.yaml --kubeconfig="kubeconfig.conf"
 ----
 
-When you try to apply the `manifests/demo-apps/app-oil-development.yaml` file you end up getting denied with a message similar to this:
+When you try to apply the manifests/demo-apps/app-oil-development.yaml file you end up getting denied with a message similar to this:
 
 ====
-`Error from server (Forbidden): error when creating "manifests/demo-apps/app-oil-development.yaml": admission webhook "ingress.capsule.clastix.io" denied the request: hostname web.oil.acmecorp.com is already used across the cluster: please, reach out to the system administrators`
+Error from server (Forbidden): error when creating "manifests/demo-apps/app-oil-development.yaml": admission webhook "ingress.capsule.clastix.io" denied the request: hostname web.oil.acmecorp.com is already used across the cluster: please, reach out to the system administrators
 ====
 
 This shows the ability to create duplicate hosts on ingresses even in separate namespaces is properly denied.
 
 Even cluster admins are not allowed to duplicate host names in tenant namespaces.
-That is, those namespaces with a `capsule.clastix.io/tenant=<TENANT_NAME>` label.
+That is, those namespaces with a "capsule.clastix.io/tenant=<TENANT_NAME>" label.
 
 [source,shell]
 ----
