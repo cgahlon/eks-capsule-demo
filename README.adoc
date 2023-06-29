@@ -65,7 +65,7 @@ Next create an identity mapping in the kube-system/aws-auth configmap
 
 [source,shell]
 ----
-export AWS_CLOUDFORMATION_DETAILS=$(aws cloudformation describe-stacks --stack-name "test-k8s-users")
+export AWS_CLOUDFORMATION_DETAILS=$(aws cloudformation describe-stacks --stack-name "test-k8s-users" --output json)
 export ALICE_ROLE_ARN=$(echo "${AWS_CLOUDFORMATION_DETAILS}" | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"RoleAliceArn\") .OutputValue")
 export ALICE_USER_ACCESSKEY=$(echo "${AWS_CLOUDFORMATION_DETAILS}" | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"AccessKeyAlice\") .OutputValue")
 export ALICE_USER_SECRETACCESSKEY=$(echo "${AWS_CLOUDFORMATION_DETAILS}" | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"SecretAccessKeyAlice\") .OutputValue")
