@@ -1,5 +1,5 @@
 :toc: left
-:toc-title: EKS Capsule Temo Table of Contents
+:toc-title: EKS Capsule Demo Table of Contents
 
 = EKS Capsule Demo
 
@@ -168,9 +168,8 @@ When you try to apply the manifests/demo-apps/app-oil-development.yaml file you 
 Error from server (Forbidden): error when creating "manifests/demo-apps/app-oil-development.yaml": admission webhook "ingress.capsule.clastix.io" denied the request: hostname web.oil.acmecorp.com is already used across the cluster: please, reach out to the system administrators
 ====
 
-This shows the ability to create duplicate hosts on ingresses even in separate namespaces is properly denied.
 
-Even cluster admins are not allowed to duplicate host names in tenant namespaces.
+Even cluster admins are not allowed to duplicate host names in a capsule  tenant's namespaces.
 That is, those namespaces with a "capsule.clastix.io/tenant=<TENANT_NAME>" label.
 
 [source,shell]
