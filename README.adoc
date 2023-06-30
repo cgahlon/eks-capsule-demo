@@ -1,3 +1,6 @@
+:toc: left
+:toc-title: EKS Capsule Temo Table of Contents
+
 = EKS Capsule Demo
 
 This is a demo of Capsule multi-tenancy management running on an AWS EKS cluster.
@@ -11,7 +14,7 @@ The https://capsule.clastix.io/docs/[Capsule Documentation Overview] section put
 It is designed as a micro-services-based ecosystem with the minimalist approach, leveraging only on upstream Kubernetes."
 ====
 
-The Capsule policy engine allows for a wide range of controls and limits on storageclasses, nodegroups, ingresses, resources, etc.
+The Capsule policy engine allows for a wide range of controls over what resources individual tenants can access such as storageclasses, nodegroups, ingresses, to resources limits, etc. It can https://capsule.clastix.io/docs/general/tutorial/#assign-additional-metadata [assign additional metadata] on tenant created objects.
 
 == What Problem are we Trying to Solve?
 
@@ -30,7 +33,7 @@ This demo is written making the following assumptions:
 .. IAM policies, roles, and users
 . You have the following CLI tools installed and available in your `$PATH`
 .. https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html[AWS CLI] (With the default profile in the ~/.aws/ files configured with credentials that have the above permissions)
-.. https://github.com/weaveworks/eksctl[eksctl] AWS' official EKS cluster creation CLI tool
+.. https://eksctl.io/[eksctl] CLI tool to easily create/delete EKS clusters
 .. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git[git]
 .. https://helm.sh/docs/intro/install/[helm]
 .. https://kubernetes.io/docs/tasks/tools/[kubectl]
@@ -131,7 +134,7 @@ kubectl apply -f manifests/capsule/tenant.yaml --kubeconfig="kubeconfig.conf"
 
 == Testing Global Permissions
 
-Users will have permission to create new namespaces but cannot create other resources outside of those namespaces.
+Users will have permission to create new namespaces but cannot create other resources outside of those namespaces
 
 [source,shell]
 ----
@@ -141,7 +144,7 @@ AWS_PROFILE=alice kubectl auth can-i create ingresses --kubeconfig="kubeconfig.c
 
 === Test Host Duplication Restrictions
 
-Then create a namespace as 'alice' and deploy our simple app in it
+Create a namespace as 'alice' and deploy the demo-app ingress in it
 
 [source,shell]
 ----
@@ -173,7 +176,11 @@ That is, those namespaces with a "capsule.clastix.io/tenant=<TENANT_NAME>" label
 [source,shell]
 ----
 kubectl apply -f manifests/demo-apps/app-oil-admin.yaml -n oil-development --kubeconfig="kubeconfig.conf"
+
+Error from server (Forbidden): error when creating "manifests/demo-apps/app-oil-admin.yaml": admission webhook "ingress.capsule.clastix.io" denied the request: hostname web.oil.acmecorp.com is already used across the cluster: please, reach out to the system administrators
 ----
+
+NOTE:: This restriction on cluster admins is only scoped to namespaces automatically labeled by Capsule with `capsule.clastix.io/tenant=<TENANT_NAME>` when a tenant creates the NS.  Any unlabeled namespace can have an ingress with a duplicate host.
 
 ==== References / Credits
 
