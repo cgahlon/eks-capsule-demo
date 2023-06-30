@@ -134,7 +134,7 @@ kubectl apply -f manifests/capsule/tenant.yaml --kubeconfig="kubeconfig.conf"
 
 == Testing Global Permissions
 
-Users will have permission to create new namespaces but cannot create other resources outside of those namespaces
+Tenant users will have permission to create new namespaces but cannot create other resources outside of those namespaces
 
 [source,shell]
 ----
