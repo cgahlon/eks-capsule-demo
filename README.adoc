@@ -15,8 +15,8 @@ The Capsule policy engine allows for a wide range of controls and limits on stor
 
 == What Problem are we Trying to Solve?
 
-Often developers inadvertently create ingresses with identical host entries to those already in use by others in other namespaces.
-This can become a problem in an multi-tenant Kubernetes environment.
+Often developers inadvertently create ingresses with host entries identical to those already in use somewhere in the cluster.
+This can become a problem in a multi-tenant Kubernetes environment.
 This demo shows one tool you can use to eliminate that problem across the entire cluster.
 
 == Demo Assumptions
@@ -30,7 +30,7 @@ This demo is written making the following assumptions:
 .. IAM policies, roles, and users
 . You have the following CLI tools installed and available in your `$PATH`
 .. https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html[AWS CLI] (With the default profile in the ~/.aws/ files configured with credentials that have the above permissions)
-.. https://github.com/weaveworks/eksctl[eksctl] AWS' official EKS cluster creation CLI tool.
+.. https://github.com/weaveworks/eksctl[eksctl] AWS' official EKS cluster creation CLI tool
 .. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git[git]
 .. https://helm.sh/docs/intro/install/[helm]
 .. https://kubernetes.io/docs/tasks/tools/[kubectl]
@@ -150,8 +150,8 @@ AWS_PROFILE=alice kubectl apply -n oil-production -f manifests/demo-apps/app-oil
 ----
 
 Later that week Alice tries to create another ingress in the "oil-development" namespace.
-However, she copy/pasted the manifest from production and forgot to change the ingress host entry.
-Capsule will block the creation of an ingress with a duplicate host value based on the scope defined in the tenant config.
+However, she copied and pasted the ingress manifest from production and forgot to change the ingress host entry.
+Capsule will block the creation of an ingress with a duplicate host based on the scope defined in the tenant config.
 
 [source,shell]
 ----
