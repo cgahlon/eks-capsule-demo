@@ -13,7 +13,7 @@ It is designed as a micro-services-based ecosystem with the minimalist approach,
 
 The Capsule policy engine allows for a wide range of controls and limits on storageclasses, nodegroups, ingresses, resources, etc.
 
-=== What Problem are we Trying to Solve?
+== What Problem are we Trying to Solve?
 
 Often developers inadvertently create ingresses with identical host entries to those already in use by others in other namespaces.
 This can become a problem in an multi-tenant Kubernetes environment.
@@ -28,40 +28,58 @@ This demo is written making the following assumptions:
 .. CloudFormation stacksets
 .. EKS clusters
 .. IAM policies, roles, and users
-. You have the following CLI tools installed and available in your $PATH
+. You have the following CLI tools installed and available in your `$PATH`
 .. https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html[AWS CLI] (With the default profile in the ~/.aws/ files configured with credentials that have the above permissions)
-.. https://github.com/weaveworks/eksctl[eksctl] AWS' official EKS Cluster creation cli tool.
+.. https://github.com/weaveworks/eksctl[eksctl] AWS' official EKS cluster creation CLI tool.
 .. https://git-scm.com/book/en/v2/Getting-Started-Installing-Git[git]
 .. https://helm.sh/docs/intro/install/[helm]
 .. https://kubernetes.io/docs/tasks/tools/[kubectl]
 
-== Cluster Creation and Configuration
+== Cluster and IAM Resource Creation
 
-First clone this repo:
+Clone this repo and `cd` into the new directory
 
 [source,shell]
 ----
- git clone https://github.com/cgahlon/eks-capsule-demo.git
+git clone https://github.com/cgahlon/eks-capsule-demo.git
+cd eks-capsule-demo
+----
+
+Clear the AWS CLI environment variables to avoid identity confusion.
+This demo is presented to use only the contents of ~/.aws/ files for authentication.
+Revising authentication methods used in this demo and providing examples is on my to-do list.
+
+[source,shell]
+----
+unset AWS_PROFILE
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_ACCESS_KEY_ID
 ----
 
 Create a small test cluster using this command.
-This step can take 20ish minutes on average but varies based on time of day/load in AWS.
 
+====
+NOTE:: This step can take 20 about minutes on average.
+It varies based on time of day/load in the AWS region it is being deployed in.
+While you wait, read the next step's instructions.
+It will save you some time.
+====
 [source,shell]
 ----
 eksctl create cluster --name=test-k8s --managed --node-type=t3.small --node-volume-size=20 --kubeconfig=kubeconfig.conf
 ----
 
-Next we create a test IAM user named 'Alice' and associated permissions.
-Optionally you can run this in another terminal while waiting for the cluster.
-It can take a few minutes to finish creating everything.
+Create a test IAM user and associated permissions.
+Optionally, you can run this in another terminal while waiting for the cluster and nodegroup to be created.
 
 [source,shell]
 ----
 eval aws cloudformation deploy --capabilities CAPABILITY_NAMED_IAM --parameter-overrides "ClusterName=test-k8s" --stack-name "test-k8s-users" --template-file cloudformation/cluster-users.cf
 ----
 
-Next create an identity mapping in the kube-system/aws-auth configmap
+== Cluster Configuration
+
+Create an identity mapping in the kube-system/aws-auth configmap for the 'alice' user.
 
 [source,shell]
 ----
@@ -73,8 +91,9 @@ export ALICE_USER_SECRETACCESSKEY=$(echo "${AWS_CLOUDFORMATION_DETAILS}" | jq -r
 eksctl create iamidentitymapping --cluster="test-k8s" --arn="${ALICE_ROLE_ARN}" --username alice --group capsule.clastix.io
 ----
 
-Now add the test users credentials and profile to the aws cli config files
+Append the test user's credentials and profile information to the AWS CLI config files.
 
+.file: ~/.aws/config
 [source,shell]
 ----
 cat >> ~/.aws/config << EOF
@@ -84,6 +103,7 @@ source_profile=alice
 EOF
 ----
 
+.file: ~/.aws/credentials
 [source,shell]
 ----
 cat >> ~/.aws/credentials << EOF
@@ -93,7 +113,7 @@ aws_secret_access_key=${ALICE_USER_SECRETACCESSKEY}
 EOF
 ----
 
-Deploy Capsule using helm
+Deploy Capsule using Helm
 
 [source,shell]
 ----
@@ -102,23 +122,14 @@ helm repo update
 helm upgrade --install --namespace capsule-system --create-namespace capsule clastix/capsule --kubeconfig=kubeconfig.conf
 ----
 
-Create a Capsule tenant.
+Create a Capsule tenant
 
 [source,shell]
 ----
 kubectl apply -f manifests/capsule/tenant.yaml --kubeconfig="kubeconfig.conf"
 ----
 
-Clear any existing AWS related environment variables to avoid identity confusion since we are explicitly using ~/.aws/ contents for authentication of all users.
-
-[source,shell]
-----
-unset AWS_PROFILE
-unset AWS_SECRET_ACCESS_KEY
-unset AWS_ACCESS_KEY_ID
-----
-
-== Test Capsule Permissions/Restrictions
+== Testing Global Permissions
 
 Users will have permission to create new namespaces but cannot create other resources outside of those namespaces.
 
@@ -128,7 +139,7 @@ AWS_PROFILE=alice kubectl auth can-i create namespaces --kubeconfig="kubeconfig.
 AWS_PROFILE=alice kubectl auth can-i create ingresses --kubeconfig="kubeconfig.conf"
 ----
 
-=== Testing With a Simple Example
+=== Test Host Duplication Restrictions
 
 Then create a namespace as 'alice' and deploy our simple app in it
 
