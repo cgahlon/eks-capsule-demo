@@ -14,7 +14,7 @@ The https://capsule.clastix.io/docs/[Capsule Documentation Overview] section put
 It is designed as a micro-services-based ecosystem with the minimalist approach, leveraging only on upstream Kubernetes."
 ====
 
-The Capsule policy engine allows for a wide range of controls over what resources individual tenants can access such as storageclasses, nodegroups, ingresses, to resources limits, etc. It can https://capsule.clastix.io/docs/general/tutorial/#assign-additional-metadata [assign additional metadata] on tenant created objects.
+The Capsule policy engine allows for a wide range of controls over what resources individual tenants can access such as storageclasses, nodegroups, ingresses, to resources limits, etc. It can https://capsule.clastix.io/docs/general/tutorial/#assign-additional-metadata[assign additional metadata] on tenant created objects.
 
 == What Problem are we Trying to Solve?
 
